@@ -1,4 +1,5 @@
-from flask import Blueprint, request, jsonify, session
+from flask import Blueprint, request, jsonify, session, send_file
+import os
 # from flask_login import login_user, current_user
 from .models import User, Transaction
 from . import db, bcrypt
@@ -89,3 +90,16 @@ def transactions():
         db.session.commit()
 
         return jsonify({'message': 'Transaction added successfully', 'transaction_id': new_transaction.transaction_id}), 201
+    
+
+@main_routes.route('/export-db', methods=['GET'])
+def export_db():
+    # Path to your SQLite database file
+    db_path = os.path.join(os.getcwd(), 'instance', 'app.db')
+    
+    # Check if the file exists
+    if not os.path.exists(db_path):
+        return jsonify({'message': 'Database file not found'}), 404
+
+    # Send the file as a download
+    return send_file(db_path, as_attachment=True)
